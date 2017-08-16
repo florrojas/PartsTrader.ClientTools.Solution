@@ -30,10 +30,38 @@ namespace PartsTrader.ClientTools.Tests
         }
 
         [TestMethod]
-        public void PartsCatalogue_ValidatePartNumber_Succeds()
+        public void PartsCatalogue_GetCompatibleParts_PartsFound()
         {
             //Arrange
-            string partNumber = "1234-abecA";
+            string partNumber = "1234-Test";
+
+            //Act
+            List<PartSummary> result = (List<PartSummary>)_partsCatalogue.GetCompatibleParts(partNumber);
+
+            //Assert
+            Assert.IsTrue(result.Count > 0);
+            _partsTraderPartsServiceMock.Verify(x => x.FindAllCompatibleParts(partNumber), Times.Once);
+        }
+
+        [TestMethod]
+        public void PartsCatalogue_GetCompatibleParts_PartsNotFound()
+        {
+            //Arrange
+            string partNumber = "1234-Test";
+            _partsTraderPartsServiceMock.Setup(x => x.FindAllCompatibleParts(partNumber)).Returns(new List<PartSummary>());
+            //Act
+            List<PartSummary> result = (List<PartSummary>)_partsCatalogue.GetCompatibleParts(partNumber);
+
+            //Assert
+            Assert.IsTrue(result.Count == 0);
+            _partsTraderPartsServiceMock.Verify(x => x.FindAllCompatibleParts(partNumber), Times.Once);
+        }
+
+        [TestMethod]
+        public void PartsCatalogue_GetCompatibleParts_ValidatePartNumber_Success()
+        {
+            //Arrange
+            string partNumber = "1234-aBc1AbC";
 
             //Act
             var result = _partsCatalogue.GetCompatibleParts(partNumber);
@@ -44,10 +72,20 @@ namespace PartsTrader.ClientTools.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidPartException))]
-        public void PartsCatalogue_ValidatePartNumber_Failed()
+        public void PartsCatalogue_GetCompatibleParts_ValidatePartNumber_Failed()
         {
             //Arrange
             string partNumber = "12ae-abec3";
+
+            //Act
+            var result = _partsCatalogue.GetCompatibleParts(partNumber);
+        }
+
+        [TestMethod]
+        public void PartsCatalogue_GetCompatibleParts_CheckExclusions_NotExclusionFound()
+        {
+            //Arrange
+            string partNumber = "1234-NoExclusion";
 
             //Act
             var result = _partsCatalogue.GetCompatibleParts(partNumber);
@@ -56,6 +94,33 @@ namespace PartsTrader.ClientTools.Tests
             Assert.IsNotNull(result);
         }
 
+        [TestMethod]
+        public void PartsCatalogue_GetCompatibleParts_CheckExclusions_ExclusionFound()
+        {
+            //Arrange
+            string partNumber = "1111-Invoice";
 
+            //Act
+            List<PartSummary> result = (List<PartSummary>)_partsCatalogue.GetCompatibleParts(partNumber);
+
+            //Assert
+            Assert.AreEqual(result.Count, 0);
+            _partsTraderPartsServiceMock.Verify(x => x.FindAllCompatibleParts(It.IsAny<string>()), Times.Never);
+        }
+
+
+        [TestMethod]
+        public void PartsCatalogue_GetCompatibleParts_CheckExclusions_ExclusionFound_CheckInsensitiveCase()
+        {
+            //Arrange
+            string partNumber = "1111-INVOICE";
+
+            //Act
+            List<PartSummary> result = (List<PartSummary>)_partsCatalogue.GetCompatibleParts(partNumber);
+
+            //Assert
+            Assert.AreEqual(result.Count, 0);
+            _partsTraderPartsServiceMock.Verify(x => x.FindAllCompatibleParts(It.IsAny<string>()), Times.Never);
+        }
     }
 }

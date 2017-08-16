@@ -12,7 +12,7 @@ namespace PartsTrader.ClientTools
 {
     public class PartCatalogue : IPartCatalogue
     {
-        private IPartsTraderPartsService _partsTraderPartsService;
+        private readonly IPartsTraderPartsService _partsTraderPartsService; //Dependency
 
         public PartCatalogue(IPartsTraderPartsService partsTraderPartsService)
         {
@@ -24,7 +24,7 @@ namespace PartsTrader.ClientTools
             //TODO: implement
             try
             {
-                IEnumerable<PartSummary> _listPartSummaries;
+                IEnumerable<PartSummary> _partSummaryList;
 
                 //validate part number
                 ValidatePartNumber(partNumber);
@@ -32,12 +32,13 @@ namespace PartsTrader.ClientTools
                 //check Exclusions list
                 if (CheckExclusionList(partNumber))
                 {
-                    _listPartSummaries = new List<PartSummary>();
+                    _partSummaryList = new List<PartSummary>();
                 }else
                 //call the partTraderService
-                 _listPartSummaries = _partsTraderPartsService.FindAllCompatibleParts(partNumber);
+                 _partSummaryList = _partsTraderPartsService.FindAllCompatibleParts(partNumber);
 
-                return _listPartSummaries;
+                //Return list of PartSummary
+                return _partSummaryList;
             }
             catch (Exception ex)
             {
@@ -66,7 +67,8 @@ namespace PartsTrader.ClientTools
         private IEnumerable<PartSummary> GetExclusionsFromJsonFile()
         {
             string _exclusionsJson = File.ReadAllText("Exclusions.json");
-            return JsonConvert.DeserializeObject<List<PartSummary>>(_exclusionsJson);
+            return JsonConvert.DeserializeObject<IEnumerable<PartSummary>>(_exclusionsJson);
         }
     }
+    
 }
