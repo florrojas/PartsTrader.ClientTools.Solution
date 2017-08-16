@@ -56,12 +56,7 @@ namespace PartsTrader.ClientTools
         private bool CheckExclusionList(string partNumber)
         {
             var _listExclusions = GetExclusionsFromJsonFile();
-            if (_listExclusions.Any())
-            {
-                return (_listExclusions.Any(x => x.PartNumber.Equals(partNumber,StringComparison.InvariantCultureIgnoreCase))) ? true : false;
-            }
-            else
-                return false;
+            return _listExclusions.Any(x => x.PartNumber.Equals(partNumber,StringComparison.InvariantCultureIgnoreCase));
         }
 
         private IEnumerable<PartSummary> GetExclusionsFromJsonFile()

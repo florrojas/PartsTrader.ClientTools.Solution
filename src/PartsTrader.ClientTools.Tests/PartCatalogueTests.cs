@@ -72,10 +72,32 @@ namespace PartsTrader.ClientTools.Tests
 
         [TestMethod]
         [ExpectedException(typeof(InvalidPartException))]
-        public void PartsCatalogue_GetCompatibleParts_ValidatePartNumber_Failed()
+        public void PartsCatalogue_GetCompatibleParts_ValidatePartNumber_FailedWrongFormat_1()
         {
             //Arrange
-            string partNumber = "12ae-abec3";
+            string partNumber = "a234-abcd";
+
+            //Act
+            var result = _partsCatalogue.GetCompatibleParts(partNumber);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidPartException))]
+        public void PartsCatalogue_GetCompatibleParts_ValidatePartNumber_FailedWrongFormat_2()
+        {
+            //Arrange
+            string partNumber = "123-abcd";
+
+            //Act
+            var result = _partsCatalogue.GetCompatibleParts(partNumber);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidPartException))]
+        public void PartsCatalogue_GetCompatibleParts_ValidatePartNumber_FailedWrongFormat_3()
+        {
+            //Arrange
+            string partNumber = "123-abcd-123";
 
             //Act
             var result = _partsCatalogue.GetCompatibleParts(partNumber);
